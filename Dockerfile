@@ -1,4 +1,14 @@
-FROM adoptopenjdk/openjdk13-openj9:jdk-13.0.2_8_openj9-0.18.0-alpine-slim
-COPY build/libs/complete-*-all.jar complete.jar
+FROM ubuntu
+FROM oracle/graalvm-ce:20.1.0-java8 as graalvm
+RUN gu install native-image
+
+COPY . /home/app/complete
+WORKDIR /home/app/complete
+
+RUN native-image --no-server -cp build/libs/hello-world-micronaut-*-all.jar
+
+FROM frolvlad/alpine-glibc
+RUN apk update && apk add libstdc++
 EXPOSE 8080
-CMD ["java", "-Dcom.sun.management.jmxremote", "-Xmx128m", "-XX:+IdleTuningGcOnIdle", "-Xtune:virtualized", "-jar", "complete.jar"]
+COPY --from=graalvm /home/app/complete/complete /app/complete
+ENTRYPOINT ["/app/complete"]

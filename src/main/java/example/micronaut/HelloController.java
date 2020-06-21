@@ -10,6 +10,6 @@ public class HelloController {
     @Get
     @Produces(MediaType.TEXT_JSON)
     public String index() {
-        return "Hello World";
+        return "Hello World!!";
     }
 }
